@@ -3,14 +3,36 @@
 ClearFrame restores low-quality images and video into perceptually cleaner, higher-resolution
 results.
 
-The current milestone is a local CLI proof-of-concept using FFmpeg, FFprobe, PyTorch, CUDA,
-and Real-ESRGAN. No API, web application, database, authentication, or cloud infrastructure
-is part of this milestone.
+The current application runs locally using React, FastAPI, FFmpeg, FFprobe, PyTorch, CUDA, and
+Real-ESRGAN. It does not require a database, account, or cloud service.
 
 ## Current Status
 
-The local video and image CLI pipelines and generated end-to-end regression suite are implemented.
-The video pipeline has passed a representative automated run; playback approval remains pending.
+The dark-first web studio and the underlying video and image CLI pipelines are implemented. The
+video pipeline has passed a representative automated run; playback approval remains pending.
+
+## Local Web App
+
+Install the web dependencies and build the frontend once:
+
+```powershell
+& ".venv\Scripts\python.exe" -m pip install -r requirements\web.lock.txt
+npm ci --prefix frontend
+npm run build --prefix frontend
+```
+
+Then start the complete local app with one command:
+
+```powershell
+& ".venv\Scripts\python.exe" scripts\run_web.py
+```
+
+Open `http://127.0.0.1:8000`. Image and video jobs are serialized through one local GPU worker to
+avoid VRAM contention. Uploaded sources, validated outputs, and reports are stored under
+`data/jobs/`; choosing **New file** after a finished job removes that job's local files.
+
+For frontend development, run the API with `scripts\run_web.py` and use
+`npm run dev --prefix frontend`; Vite serves `http://127.0.0.1:5173` and proxies API calls locally.
 
 ## Video Usage
 
@@ -50,6 +72,7 @@ py -3.12 -m venv .venv
 & ".venv\Scripts\python.exe" -m pip install --upgrade pip
 & ".venv\Scripts\python.exe" -m pip install -r requirements\bootstrap-cu130.lock.txt
 & ".venv\Scripts\python.exe" -m pip install -r requirements\video.lock.txt
+& ".venv\Scripts\python.exe" -m pip install -r requirements\web.lock.txt
 & ".venv\Scripts\python.exe" scripts\check_environment.py
 ```
 

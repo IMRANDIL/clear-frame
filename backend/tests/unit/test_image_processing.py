@@ -11,7 +11,7 @@ def test_auto_lighting_brightens_a_dark_image() -> None:
     result = adjust_low_light(image, "auto")
 
     assert result.applied
-    assert result.source_median == 32
+    assert result.source_median == pytest.approx(32, abs=1)
     assert 0.55 <= result.gamma < 1
     assert float(result.image.mean()) > float(image.mean())
 
@@ -38,6 +38,18 @@ def test_lighting_can_be_disabled() -> None:
 def test_lighting_rejects_invalid_mode() -> None:
     with pytest.raises(ValueError, match="lighting mode"):
         adjust_low_light(np.zeros((2, 2, 3), dtype=np.uint8), "aggressive")
+
+
+def test_lighting_ignores_fully_transparent_pixels_when_detecting_darkness() -> None:
+    image = np.zeros((4, 4, 3), dtype=np.uint8)
+    image[1:3, 1:3] = 180
+    alpha = np.zeros((4, 4), dtype=np.uint8)
+    alpha[1:3, 1:3] = 255
+
+    result = adjust_low_light(image, "auto", alpha=alpha)
+
+    assert not result.applied
+    assert result.source_median > 100
 
 
 def test_resize_restored_image_uses_exact_target_dimensions() -> None:

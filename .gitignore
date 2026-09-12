@@ -12,8 +12,11 @@ data/input/*
 data/output/*
 data/temp/*
 data/models/*
+data/jobs/*
 *.pth
 *.onnx
+frontend/node_modules/
+frontend/dist/
 
 # Keep directory placeholders when they are introduced.
 !data/**/.gitkeep

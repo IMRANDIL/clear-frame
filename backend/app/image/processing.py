@@ -22,7 +22,12 @@ class LightingResult:
     gamma: float
 
 
-def adjust_low_light(image: Frame, mode: str) -> LightingResult:
+def adjust_low_light(
+    image: Frame,
+    mode: str,
+    *,
+    alpha: np.ndarray | None = None,
+) -> LightingResult:
     """Apply conservative gamma correction when the image is globally dark."""
 
     if mode not in {"auto", "force", "off"}:
@@ -30,8 +35,13 @@ def adjust_low_light(image: Frame, mode: str) -> LightingResult:
     if image.dtype != np.uint8 or image.ndim != 3 or image.shape[2] != 3:
         raise ValueError("low-light adjustment requires an HxWx3 uint8 image")
 
-    luminance = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    source_median = float(np.median(luminance))
+    if alpha is not None and (alpha.dtype != np.uint8 or alpha.shape != image.shape[:2]):
+        raise ValueError("alpha mask must match the image and use uint8 samples")
+
+    lab = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
+    luminance = lab[:, :, 0]
+    visible_luminance = luminance[alpha >= 16] if alpha is not None else luminance
+    source_median = float(np.median(visible_luminance)) if visible_luminance.size else 0.0
     if mode == "off" or (mode == "auto" and source_median >= AUTO_LOW_LIGHT_MEDIAN):
         return LightingResult(image, False, source_median, 1.0)
 
@@ -40,7 +50,8 @@ def adjust_low_light(image: Frame, mode: str) -> LightingResult:
     gamma = math.log(target) / math.log(normalized_median)
     gamma = min(MAX_GAMMA, max(MIN_GAMMA, gamma))
     lookup = np.rint((np.arange(256, dtype=np.float32) / 255.0) ** gamma * 255.0)
-    corrected = cv2.LUT(image, lookup.astype(np.uint8))
+    lab[:, :, 0] = cv2.LUT(luminance, lookup.astype(np.uint8))
+    corrected = cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)
     return LightingResult(np.ascontiguousarray(corrected), True, source_median, gamma)
 
 

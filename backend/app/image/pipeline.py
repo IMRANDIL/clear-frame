@@ -341,7 +341,11 @@ def run_image_pipeline(
 
     lighting = run_stage(
         "lighting",
-        lambda: adjust_low_light(source.pixels, resolved_config.lighting),
+        lambda: adjust_low_light(
+            source.pixels,
+            resolved_config.lighting,
+            alpha=source.alpha,
+        ),
     )
     assert isinstance(lighting, LightingResult)
     _emit(
