@@ -1,0 +1,1 @@
+"""ClearFrame video processing application."""

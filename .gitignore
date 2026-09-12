@@ -1,0 +1,29 @@
+.venv/
+.env
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Model weights and generated media are local artifacts.
+data/input/*
+data/output/*
+data/temp/*
+data/models/*
+*.pth
+*.onnx
+
+# Keep directory placeholders when they are introduced.
+!data/**/.gitkeep
+
+# Local processing reports and partial outputs.
+*.report.json
+*.partial.mp4
+
+# Editors and operating systems.
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

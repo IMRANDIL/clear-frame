@@ -1,0 +1,5 @@
+--index-url https://download.pytorch.org/whl/cu130
+
+# This pair must remain aligned. NVIDIA driver 610.62 supports this runtime.
+torch==2.14.0+cu130
+torchvision==0.29.0+cu130

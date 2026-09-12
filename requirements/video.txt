@@ -1,0 +1,2 @@
+# Pinned stable OpenCV 4.x release for image I/O and exact post-inference resizing.
+opencv-python-headless==4.14.0.94
